@@ -14,6 +14,8 @@ class SyncFormatter:
         self.data_file = data_file
         self.labels_file = labels_file
         data_flash = int(self.red_flash__data(data_file) * self.conversion)
+        label_flash = int(self.red_flash__labels(labels_file) * self.MILLISECONDS)
+        self.offset = label_flash - data_flash
 
     def parse_csv(self, data_file):
         signals = {}
@@ -47,6 +49,14 @@ class SyncFormatter:
                     if line[0] == "S" and line[2] == 'LED Sync':
                         return int(line[1])
 
+    @staticmethod
+    def red_flash__labels(labels_file):
+        with open(labels_file) as json_file:
+            parsed_labels = json.loads(json_file.read())
+        for label in parsed_labels:
+            if label['name'] == 'First Red Flash':
+                return float(label['time'])
+
 
 def parse_args(_args=None):
     parser = argparse.ArgumentParser(description='Format that data!')
@@ -55,6 +65,7 @@ def parse_args(_args=None):
     if _args is None:
         return parser.parse_args()
     return parser.parse_args(_args)
+
 
 if __name__ == '__main__':
     args = parse_args()
