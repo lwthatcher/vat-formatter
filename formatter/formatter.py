@@ -8,13 +8,24 @@ class SyncFormatter:
 
     MILLISECONDS = 1000.
 
-    def __init__(self, data_file, labels_file, tps=512.):
+    def __init__(self, data_file, labels_file, event_types_file=None, tps=512.):
+        # ticks per second and conversion
         self.ticks_per_second = tps
         self.conversion = self.MILLISECONDS / tps
-        self.data_file = data_file
-        self.labels_file = labels_file
+        # parse json
+        parsed_labels = self.parse_json(labels_file)
+        # save data/labels ...?
+        self._data_file = data_file
+        self._parsed_labels = parsed_labels
+        # get event-name-map
+        if event_types_file:
+            parsed_event_types = self.parse_json(event_types_file)
+            self._event_name_map = self.label_name_map(parsed_event_types)
+        else:
+            self._event_name_map = self.label_name_map(parsed_labels)
+        # get offset
         data_flash = int(self.red_flash__data(data_file) * self.conversion)
-        label_flash = int(self.red_flash__labels(labels_file) * self.MILLISECONDS)
+        label_flash = int(self.red_flash__labels(parsed_labels) * self.MILLISECONDS)
         self.offset = label_flash - data_flash
 
     def parse_csv(self, data_file):
@@ -29,6 +40,12 @@ class SyncFormatter:
                             signals[token] = []
                         signals[token].append(dimensions)
         return signals
+
+    # def get_label_times(self, parsed_labels):
+    #     lbl_times = []
+    #     for label in parsed_labels:
+    #         lbl = []
+    #         pass
 
     @staticmethod
     def parse_line(line, conversion):
@@ -50,18 +67,42 @@ class SyncFormatter:
                         return int(line[1])
 
     @staticmethod
-    def red_flash__labels(labels_file):
-        with open(labels_file) as json_file:
-            parsed_labels = json.loads(json_file.read())
+    def red_flash__labels(parsed_labels):
         for label in parsed_labels:
             if label['name'] == 'First Red Flash':
                 return float(label['time'])
+
+    @staticmethod
+    def parse_json(labels_file):
+        with open(labels_file) as json_file:
+            parsed_labels = json.loads(json_file.read())
+        return parsed_labels
+
+    @staticmethod
+    def label_name_map(parsed_labels):
+        result = {}
+        n = 1
+        for label in parsed_labels:
+            if label['name'] != 'First Red Flash':
+                if 'subEventTypes' in label:
+                    for sub_event in label['subEventTypes']:
+                        name = label['name'] + '--' + sub_event
+                        if name not in result:
+                            result[name] = n
+                            n += 1
+                else:
+                    name = label['name']
+                    if name not in result:
+                            result[name] = n
+                            n += 1
+        return result
 
 
 def parse_args(_args=None):
     parser = argparse.ArgumentParser(description='Format that data!')
     parser.add_argument('data', help='file containing data')
     parser.add_argument('labels', help='file containing labels')
+    parser.add_argument('--event_types', '-e', help='the event_types.json file')
     if _args is None:
         return parser.parse_args()
     return parser.parse_args(_args)
@@ -69,5 +110,6 @@ def parse_args(_args=None):
 
 if __name__ == '__main__':
     args = parse_args()
-    formatter = SyncFormatter(args.data, args.labels)
+    formatter = SyncFormatter(args.data, args.labels, args.event_types)
     print("offset:", formatter.offset)
+    print("event-name-map", formatter._event_name_map)
