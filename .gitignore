@@ -6,3 +6,5 @@ __pycache__/
 # IDEs
 .idea/
 
+# local data examples
+data/

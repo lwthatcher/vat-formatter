@@ -69,4 +69,5 @@ def parse_args(_args=None):
 
 if __name__ == '__main__':
     args = parse_args()
-    print(args)
+    formatter = SyncFormatter(args.data, args.labels)
+    print("offset:", formatter.offset)
