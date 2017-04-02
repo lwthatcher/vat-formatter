@@ -144,25 +144,33 @@ class SyncFormatter:
             feature_names.append(dim + ".z")
         return feature_names
 
+
 def parse_args(_args=None):
     parser = argparse.ArgumentParser(description='Format that data!')
-    parser.add_argument('data', help='file containing data')
-    parser.add_argument('labels', help='file containing labels')
-    parser.add_argument('--event_types', '-e', help='the event_types.json file')
+    parser.add_argument('--data', '-d', help='file containing data')
+    parser.add_argument('--labels', '-l', help='file containing labels')
+    parser.add_argument('--event_types', '-E', help='the event_types.json file')
+    parser.add_argument('--folder', '-F', help='the folder containing the data/labels files')
+    parser.add_argument('-e', action='store_true', default=False,
+                        help='if folder is specified, '
+                             'this flag signifies that there is an event_types.json file in the folder')
     parser.add_argument('--ticks_per_second', '-tps', type=int, default=512,
                         help='the number of ticks per second the data file uses')
     if _args is None:
-        parsed_args = parser.parse_args()
-    parsed_args = parser.parse_args(_args)
-    return parsed_args
+        __args = parser.parse_args()
+    else:
+        __args = parser.parse_args(_args)
+    if __args.folder:
+        __args.data = __args.folder + "/data.csv"
+        __args.labels = __args.folder + "/labels.json"
+        if __args.e:
+            __args.event_types = __args.folder + "/event_types.json"
+    return __args
 
 
 if __name__ == '__main__':
     args = parse_args()
     formatter = SyncFormatter(args.data, args.labels, args.event_types, tps=args.ticks_per_second)
-    # print("offset:", formatter.offset)
-    # print("event-name-map", formatter.event_names)
-    # print("label times", formatter.label_times)
     r, f = formatter.format_simple()
     f.append('label')
     header = ', '.join(f)
