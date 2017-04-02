@@ -149,11 +149,14 @@ def parse_args(_args=None):
     parser = argparse.ArgumentParser(description='Format that data!')
     parser.add_argument('--data', '-d', help='file containing data')
     parser.add_argument('--labels', '-l', help='file containing labels')
+    parser.add_argument('--output', '-out', help='the output file to save to')
     parser.add_argument('--event_types', '-E', help='the event_types.json file')
     parser.add_argument('--folder', '-F', help='the folder containing the data/labels files')
     parser.add_argument('-e', action='store_true', default=False,
                         help='if folder is specified, '
                              'this flag signifies that there is an event_types.json file in the folder')
+    parser.add_argument('-o', action='store_true', default=False,
+                        help='if folder is specified, this flag sets to save output to the same folder')
     parser.add_argument('--ticks_per_second', '-tps', type=int, default=512,
                         help='the number of ticks per second the data file uses')
     if _args is None:
@@ -165,6 +168,8 @@ def parse_args(_args=None):
         __args.labels = __args.folder + "/labels.json"
         if __args.e:
             __args.event_types = __args.folder + "/event_types.json"
+        if __args.o:
+            __args.output = __args.folder + "/output.csv"
     return __args
 
 
@@ -174,5 +179,5 @@ if __name__ == '__main__':
     r, f = formatter.format_simple()
     f.append('label')
     header = ', '.join(f)
-    np.savetxt("output.csv", r, delimiter=',', fmt='%6i', header=header)
+    np.savetxt(args.output, r, delimiter=',', fmt='%6i', header=header)
     print(r)
