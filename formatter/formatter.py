@@ -67,13 +67,23 @@ class SyncFormatter:
                 lbl_times.append([start, end, self.event_names[name]])
         return lbl_times
 
-    # def format_simple(self):
-    #     # can only use this format type if all signals are of equal length
-    #     if all([len(x) == len(y) for x in self.data for y in self.data]):
-    #         print("cannot use this format if signals are not of the same length")
-    #         return None
-    #     feature_names = self.get_feature_names(self._sensors)
-
+    def format_simple(self):
+        # can only use this format type if all signals are of equal length
+        if not all([len(x) == len(y) for x in self.data for y in self.data]):
+            print("cannot use this format if signals are not of the same length")
+            return None
+        feature_names = self.get_feature_names(self._sensors)
+        # create matrix
+        result = np.zeros((self.num_examples, self.num_features+1))
+        # add x,y,z for each signal
+        for i in range(len(self.data)):
+            j = i * 3
+            result[:, j:j+3] = self.data[i][:, 1:]
+        # figure out labels
+        Δt = self.data[0][:, 0].reshape(self.num_examples, 1)  # ticks (taken from first sensor)
+        λ = np.where((Δt >= self.label_times[:, 0]) & (Δt <= self.label_times[:, 1]))  # λ[0] = indices, λ[1] = values
+        result[λ[0], -1] = self.label_times[λ[1], 2]  # applies λ's label values as last column
+        return result, feature_names
 
     @property
     def num_features(self):
@@ -150,6 +160,11 @@ def parse_args(_args=None):
 if __name__ == '__main__':
     args = parse_args()
     formatter = SyncFormatter(args.data, args.labels, args.event_types, tps=args.ticks_per_second)
-    print("offset:", formatter.offset)
-    print("event-name-map", formatter.event_names)
-    print("label times", formatter.label_times)
+    # print("offset:", formatter.offset)
+    # print("event-name-map", formatter.event_names)
+    # print("label times", formatter.label_times)
+    r, f = formatter.format_simple()
+    f.append('label')
+    header = ', '.join(f)
+    np.savetxt("output.csv", r, delimiter=',', fmt='%6i', header=header)
+    print(r)
