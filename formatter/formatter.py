@@ -2,7 +2,6 @@ import numpy as np
 import argparse
 import json
 import csv
-from formatter.normalizer import Normalizer
 
 
 class SyncFormatter:
@@ -151,12 +150,15 @@ def parse_args(_args=None):
     parser.add_argument('--data', '-d', help='file containing data')
     parser.add_argument('--labels', '-l', help='file containing labels')
     parser.add_argument('--output', '-out', help='the output file to save to')
+    parser.add_argument('--normalize_range', '-N', nargs='*', default='false',
+                        help='If flag, normalizes the data with automatic range finding.'
+                             'If values specified, denotes the max-value to normalize by for each sensor.')
     parser.add_argument('--event_types', '-E', help='the event_types.json file')
     parser.add_argument('--folder', '-F', help='the folder containing the data/labels files')
-    parser.add_argument('-e', action='store_true', default=False,
+    parser.add_argument('-e', action='store_true',
                         help='if folder is specified, '
                              'this flag signifies that there is an event_types.json file in the folder')
-    parser.add_argument('-o', action='store_true', default=False,
+    parser.add_argument('-o', action='store_true',
                         help='if folder is specified, this flag sets to save output to the same folder')
     parser.add_argument('--ticks_per_second', '-tps', type=int, default=512,
                         help='the number of ticks per second the data file uses')
@@ -176,6 +178,7 @@ def parse_args(_args=None):
 
 if __name__ == '__main__':
     args = parse_args()
+    print('Normalization:', args.normalize_range)
     formatter = SyncFormatter(args.data, args.labels, args.event_types, tps=args.ticks_per_second)
     r, f = formatter.format_simple()
     f.append('label')

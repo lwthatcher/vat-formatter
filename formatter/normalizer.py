@@ -4,6 +4,9 @@ import numpy as np
 
 class Normalizer:
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def max_per_sensor(data):
         # for now assume first 3 cols are A, second 3 are G
@@ -17,4 +20,4 @@ class Normalizer:
 
 
 if __name__ == '__main__':
-    pass
+    print('not much to do here!')
