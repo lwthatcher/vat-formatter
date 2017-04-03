@@ -1,7 +1,8 @@
-import numpy as np
 import argparse
-import json
 import csv
+import json
+import numpy as np
+from formatting.normalizer import Normalizer
 
 
 class SyncFormatter:
