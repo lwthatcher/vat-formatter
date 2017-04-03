@@ -186,9 +186,20 @@ def parse_args(_args=None):
 if __name__ == '__main__':
     args = parse_args()
     print('Normalization:', args.normalize_range)
+    # format
     formatter = SyncFormatter(args.data, args.labels, args.event_types, tps=args.ticks_per_second)
     r, f = formatter.format_simple()
+    print(r)
+    # normalize
+    if args.normalize_range[0] is not False:
+        if args.normalize_range[0] is True:
+            range = Normalizer.max_per_sensor(r)
+            print('inferred sensor range:', range)
+        else:
+            range = args.normalize_range
+        r = Normalizer.normalize_per_sensor(r, range)
+    # format for .csv output
     f.append('label')
     header = ', '.join(f)
-    np.savetxt(args.output, r, delimiter=',', fmt='%6i', header=header)
-    print(r)
+    np.savetxt(args.output, r, delimiter=',', fmt='%f', header=header)
+
