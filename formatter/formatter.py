@@ -2,6 +2,7 @@ import numpy as np
 import argparse
 import json
 import csv
+from formatter.normalizer import Normalizer
 
 
 class SyncFormatter:
