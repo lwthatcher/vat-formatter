@@ -150,7 +150,7 @@ def parse_args(_args=None):
     parser.add_argument('--data', '-d', help='file containing data')
     parser.add_argument('--labels', '-l', help='file containing labels')
     parser.add_argument('--output', '-out', help='the output file to save to')
-    parser.add_argument('--normalize_range', '-N', nargs='*', default='false',
+    parser.add_argument('--normalize_range', '-N', type=float, nargs='*', default=[False],
                         help='If flag, normalizes the data with automatic range finding.'
                              'If values specified, denotes the max-value to normalize by for each sensor.')
     parser.add_argument('--event_types', '-E', help='the event_types.json file')
@@ -162,10 +162,12 @@ def parse_args(_args=None):
                         help='if folder is specified, this flag sets to save output to the same folder')
     parser.add_argument('--ticks_per_second', '-tps', type=int, default=512,
                         help='the number of ticks per second the data file uses')
+    # parse arguments
     if _args is None:
         __args = parser.parse_args()
     else:
         __args = parser.parse_args(_args)
+    # if folder is specified, set data, labels, etc.. variables
     if __args.folder:
         __args.data = __args.folder + "/data.csv"
         __args.labels = __args.folder + "/labels.json"
@@ -173,6 +175,10 @@ def parse_args(_args=None):
             __args.event_types = __args.folder + "/event_types.json"
         if __args.o:
             __args.output = __args.folder + "/output.csv"
+    # normalization range
+    if len(__args.normalize_range) == 0:
+        __args.normalize_range = [True]
+    # return result
     return __args
 
 
