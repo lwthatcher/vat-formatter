@@ -4,7 +4,8 @@ import numpy as np
 
 class Normalizer:
 
-    def max_per_sensor(self, data, sensors=('A', 'G')):
+    @staticmethod
+    def max_per_sensor(data):
         # for now assume first 3 cols are A, second 3 are G
         cols = [3, 6]
         i = 0
@@ -13,6 +14,7 @@ class Normalizer:
             result.append(np.max(abs(data[:, i:j])))
             i = j
         return result
+
 
 if __name__ == '__main__':
     pass
