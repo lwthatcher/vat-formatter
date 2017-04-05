@@ -19,6 +19,17 @@ class Normalizer:
         return result
 
     @staticmethod
+    def mean_per_sensor(data):
+        # for now assume first 3 cols are A, second 3 are G
+        cols = [3, 6]
+        i = 0
+        result = []
+        for j in cols:
+            result.append(np.mean(abs(data[:, i:j])))
+            i = j
+        return result
+
+    @staticmethod
     def normalize_per_sensor(data, norms):
         # for now assume first 3 cols are A, second 3 are G
         cols = [3, 6]

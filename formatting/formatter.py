@@ -150,7 +150,7 @@ def parse_args(_args=None):
     parser = argparse.ArgumentParser(description='Format that data!')
     parser.add_argument('--data', '-d', help='file containing data')
     parser.add_argument('--labels', '-l', help='file containing labels')
-    parser.add_argument('--output', '-out', help='the output file to save to')
+    parser.add_argument('--output', '-O', help='the output file to save to')
     parser.add_argument('--normalize_range', '-N', type=float, nargs='*', default=[False],
                         help='If flag, normalizes the data with automatic range finding.'
                              'If values specified, denotes the max-value to normalize by for each sensor.')
@@ -193,7 +193,7 @@ if __name__ == '__main__':
     # normalize
     if args.normalize_range[0] is not False:
         if args.normalize_range[0] is True:
-            range = Normalizer.max_per_sensor(r)
+            range = Normalizer.mean_per_sensor(r)
             print('inferred sensor range:', range)
         else:
             range = args.normalize_range
