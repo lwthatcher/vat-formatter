@@ -8,6 +8,8 @@ from formatting.normalizer import Normalizer
 class SyncFormatter:
 
     MILLISECONDS = 1000.
+    DEFAULT_TPS = 512.
+    DEFAULT_CONVERSION = MILLISECONDS / DEFAULT_TPS
 
     def __init__(self, data_file, labels_file, event_types_file=None, tps=512., sensors=('A', 'G'),
                  format_type="simple"):
@@ -35,7 +37,8 @@ class SyncFormatter:
         # parse data
         self.data = self.parse_csv(data_file, sensors)
 
-    def parse_csv(self, data_file, sensors):
+    @classmethod
+    def parse_csv(cls, data_file, sensors, conversion=cls.DEFAULT_CONVERSION):
         signals = {}
         for sensor in sensors:
             signals[sensor] = []
@@ -46,7 +49,7 @@ class SyncFormatter:
                     if line[0] in signals and len(line) == 5:
                         token = line[0]
                         dimensions = [int(i) for i in line[1:]]
-                        dimensions[0] = int(dimensions[0] * self.conversion)
+                        dimensions[0] = int(dimensions[0] * conversion)
                         signals[token].append(dimensions)
         return [np.array(signals[dim]) for dim in sensors]
 
