@@ -10,3 +10,4 @@ __pycache__/
 # local data examples
 data/
 output.csv
+output.npy
